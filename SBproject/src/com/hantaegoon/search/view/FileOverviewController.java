@@ -30,7 +30,8 @@ public class FileOverviewController implements Initializable {
 	private TextField valuefield;
 
 	private static String defaultPath = "C:/Users/tae/";
-	private File choice;
+	private File choiceNameDirectory;
+	private File choiceValueDirectory;
 	private TreeItem<FilePath> rootTreeItem;
 
 	private static void configureFileChooser(final DirectoryChooser directoryChooser) {
@@ -49,9 +50,9 @@ public class FileOverviewController implements Initializable {
 		System.out.println("Set Name Folder Path!!!!!!!!!");
 		final DirectoryChooser directoryChooserName = new DirectoryChooser();
 		configureFileChooser(directoryChooserName);
-		choice = directoryChooserName.showDialog(null);
+		choiceNameDirectory = directoryChooserName.showDialog(null);
 
-		if (choice == null || !choice.isDirectory()) {
+		if (choiceNameDirectory == null || !choiceNameDirectory.isDirectory()) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Could not open directory");
 			alert.setContentText("The file is invalid.");
@@ -59,23 +60,35 @@ public class FileOverviewController implements Initializable {
 			alert.showAndWait();
 		} else {
 			// create tree
-			defaultPath = choice.getAbsolutePath();
+			defaultPath = choiceNameDirectory.getAbsolutePath();
 			createTree(defaultPath);
 			fileTreeview.setRoot(rootTreeItem);
 			fileTreeview.getSelectionModel().selectedItemProperty()
-					.addListener((observable, oldValue, newValue) -> handle(newValue));
+					.addListener((observable, oldName, newName) -> handleName(newName));
 
 		}
 
 	}
 
-	public void VfileFoldbtn(ActionEvent event) {
+	public void VfileFoldbtn(ActionEvent event) throws IOException {
 		System.out.println("Set Value FolderPath~~~~~~~~~");
+		final DirectoryChooser directoryChooserValue = new DirectoryChooser();
+		configureFileChooser(directoryChooserValue);
+		choiceValueDirectory = directoryChooserValue.showDialog(null);
+		if (choiceValueDirectory == null || !choiceValueDirectory.isDirectory()) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setHeaderText("Could not open directory");
+			alert.setContentText("The file is invalid.");
 
-		final DirectoryChooser directoryChooser = new DirectoryChooser();
-		final File selectedDirectory = directoryChooser.showDialog(null);
-		if (selectedDirectory != null) {
-			System.out.println("selectedDirectory.getAbsolutePath(): " + selectedDirectory.getAbsolutePath());
+			alert.showAndWait();
+		} else {
+			// create tree
+			defaultPath = choiceValueDirectory.getAbsolutePath();
+			createTree(defaultPath);
+			fileTreeview.setRoot(rootTreeItem);
+			fileTreeview.getSelectionModel().selectedItemProperty()
+					.addListener((observable, oldValue, newValue) -> handleValue(newValue));
+
 		}
 
 	}
@@ -91,11 +104,17 @@ public class FileOverviewController implements Initializable {
 	public void searchValuebtn(ActionEvent event) {
 		System.out.println("Search Value Button++++++++++");
 
+		System.out.println("Search File Button***********");
+		System.out.println("Input Value: " + valuefield.getText().toLowerCase());
+
+		// filterChanged(valuefield.getText().toString());
+
 	}
 
 	/**
-	 * Create original tree structure
-	 * This is filtering and create tree view method
+	 * Create original tree structure This is filtering and create tree view
+	 * method
+	 * 
 	 * @throws IOException
 	 */
 	private void createTree(String path) throws IOException {
@@ -157,6 +176,10 @@ public class FileOverviewController implements Initializable {
 		for (TreeItem<FilePath> child : root.getChildren()) {
 
 			TreeItem<FilePath> filteredChild = new TreeItem<>(child.getValue());
+			System.out.println("filter : " + child.getValue());
+			// file full path print
+			System.out.println("full path : " + child.getValue().getPath());
+			System.out.println();
 			filteredChild.setExpanded(true);
 
 			filter(child, filter, filteredChild);
@@ -246,8 +269,14 @@ public class FileOverviewController implements Initializable {
 		}
 	}
 
-	private void handle(TreeItem<FilePath> newValue) {
+	private void handleName(TreeItem<FilePath> newName) {
 		// TODO Auto-generated method stub
-		System.out.println("Selected Text : " + choice.getAbsolutePath() + "\\" + newValue.getValue());
+		System.out.println("Selected Name Text : " + choiceNameDirectory.getAbsolutePath() + "\\" + newName.getValue());
+	}
+
+	private void handleValue(TreeItem<FilePath> newValue) {
+		// TODO Auto-generated method stub
+		System.out.println(
+				"Selected Value Text : " + choiceValueDirectory.getAbsolutePath() + "\\" + newValue.getValue());
 	}
 }
