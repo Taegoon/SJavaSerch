@@ -32,7 +32,7 @@ public class FileOverviewController implements Initializable {
 	@FXML
 	private TextField valuefield;
 
-	private static String defaultPath = "C:/Users/tae/";
+	private static String defaultPath = "C:/Users/tae/Downloads";
 	private File choiceNameDirectory;
 	private File choiceValueDirectory;
 	private TreeItem<FilePath> rootTreeItem;
@@ -111,9 +111,11 @@ public class FileOverviewController implements Initializable {
 	public void searchValuebtn(ActionEvent event) throws Exception {
 		System.out.println("Search Value Button++++++++++");
 		System.out.println("Input Value: " + valuefield.getText().toLowerCase());
-
+		long start, end;
+		start = System.nanoTime();
 		filterChanged(valuefield.getText().toString());
-
+		end = System.nanoTime();
+		System.out.println("다이렉트:\t: " + (end - start) + " ns");
 	}
 
 	/**
@@ -194,8 +196,9 @@ public class FileOverviewController implements Initializable {
 					filteredRoot.getChildren().add(filteredChild);
 				}
 			} else if (filter.equals(valuefield.getText())) {
-//				boolean contentsMath = filterContents.runFilterContents(child.getValue().getPath().toString(), filter);
-				boolean contentsMath = filterContentsIO.runFincontensFilterIO(child.getValue().getPath().toString(), filter);
+				
+				boolean contentsMath = filterContents.runFilterContents(child.getValue().getPath().toString(), filter);
+//				boolean contentsMath = filterContentsIO.runFincontensFilterIO(child.getValue().getPath().toString(), filter);
 				if (!filteredChild.getChildren().isEmpty() || contentsMath) {
 					filteredRoot.getChildren().add(filteredChild);
 				}
