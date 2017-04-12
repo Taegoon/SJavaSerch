@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import java.util.function.Function;
 
 import com.hantaegoon.search.model.FileContentsFilter;
+import com.hantaegoon.search.model.FileContentsFilterIO;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +36,10 @@ public class FileOverviewController implements Initializable {
 	private File choiceNameDirectory;
 	private File choiceValueDirectory;
 	private TreeItem<FilePath> rootTreeItem;
+//	read by NIO
 	FileContentsFilter filterContents = new FileContentsFilter();
+//	read by IO
+	FileContentsFilterIO filterContentsIO = new FileContentsFilterIO();
 
 	private static void configureFileChooser(final DirectoryChooser directoryChooser) {
 		directoryChooser.setTitle("Select Fold");
@@ -106,8 +110,6 @@ public class FileOverviewController implements Initializable {
 
 	public void searchValuebtn(ActionEvent event) throws Exception {
 		System.out.println("Search Value Button++++++++++");
-
-		System.out.println("Search File Button***********");
 		System.out.println("Input Value: " + valuefield.getText().toLowerCase());
 
 		filterChanged(valuefield.getText().toString());
@@ -192,7 +194,8 @@ public class FileOverviewController implements Initializable {
 					filteredRoot.getChildren().add(filteredChild);
 				}
 			} else if (filter.equals(valuefield.getText())) {
-				boolean contentsMath = filterContents.runFilterContents(child.getValue().getPath().toString(), filter);
+//				boolean contentsMath = filterContents.runFilterContents(child.getValue().getPath().toString(), filter);
+				boolean contentsMath = filterContentsIO.runFincontensFilterIO(child.getValue().getPath().toString(), filter);
 				if (!filteredChild.getChildren().isEmpty() || contentsMath) {
 					filteredRoot.getChildren().add(filteredChild);
 				}
