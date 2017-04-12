@@ -11,6 +11,8 @@ import java.util.Comparator;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
+import com.hantaegoon.search.model.FileContentsFilter;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,6 +35,7 @@ public class FileOverviewController implements Initializable {
 	private File choiceNameDirectory;
 	private File choiceValueDirectory;
 	private TreeItem<FilePath> rootTreeItem;
+	FileContentsFilter filterContents = new FileContentsFilter();
 
 	private static void configureFileChooser(final DirectoryChooser directoryChooser) {
 		directoryChooser.setTitle("Select Fold");
@@ -93,7 +96,7 @@ public class FileOverviewController implements Initializable {
 
 	}
 
-	public void searchNamebtn(ActionEvent event) {
+	public void searchNamebtn(ActionEvent event) throws Exception {
 		System.out.println("Search File Button***********");
 		System.out.println("Input Name: " + namefield.getText().toLowerCase());
 
@@ -101,13 +104,13 @@ public class FileOverviewController implements Initializable {
 
 	}
 
-	public void searchValuebtn(ActionEvent event) {
+	public void searchValuebtn(ActionEvent event) throws Exception {
 		System.out.println("Search Value Button++++++++++");
 
 		System.out.println("Search File Button***********");
 		System.out.println("Input Value: " + valuefield.getText().toLowerCase());
 
-		// filterChanged(valuefield.getText().toString());
+		filterChanged(valuefield.getText().toString());
 
 	}
 
@@ -170,25 +173,33 @@ public class FileOverviewController implements Initializable {
 	 * @param root
 	 * @param filter
 	 * @param filteredRoot
+	 * @throws Exception
 	 */
-	private void filter(TreeItem<FilePath> root, String filter, TreeItem<FilePath> filteredRoot) {
+	private void filter(TreeItem<FilePath> root, String filter, TreeItem<FilePath> filteredRoot) throws Exception {
 
 		for (TreeItem<FilePath> child : root.getChildren()) {
 
 			TreeItem<FilePath> filteredChild = new TreeItem<>(child.getValue());
 			System.out.println("filter : " + child.getValue());
 			// file full path print
-			System.out.println("full path : " + child.getValue().getPath());
+			System.out.println("full path : " + child.getValue().getPath().toString());
 			System.out.println();
 			filteredChild.setExpanded(true);
 
 			filter(child, filter, filteredChild);
-
-			if (!filteredChild.getChildren().isEmpty() || isMatch(filteredChild.getValue(), filter)) {
-				filteredRoot.getChildren().add(filteredChild);
+			if (filter.equals(namefield.getText())) {
+				if (!filteredChild.getChildren().isEmpty() || isMatch(filteredChild.getValue(), filter)) {
+					filteredRoot.getChildren().add(filteredChild);
+				}
+			} else if (filter.equals(valuefield.getText())) {
+				boolean contentsMath = filterContents.runFilterContents(child.getValue().getPath().toString(), filter);
+				if (!filteredChild.getChildren().isEmpty() || contentsMath) {
+					filteredRoot.getChildren().add(filteredChild);
+				}
 			}
 
 		}
+
 	}
 
 	/**
@@ -207,8 +218,9 @@ public class FileOverviewController implements Initializable {
 	 * Show original tree or filtered tree depending on filter
 	 * 
 	 * @param filter
+	 * @throws Exception 
 	 */
-	private void filterChanged(String filter) {
+	private void filterChanged(String filter) throws Exception {
 		if (filter.isEmpty()) {
 			fileTreeview.setRoot(rootTreeItem);
 		} else {
@@ -216,6 +228,9 @@ public class FileOverviewController implements Initializable {
 			filter(rootTreeItem, filter, filteredRoot);
 			fileTreeview.setRoot(filteredRoot);
 		}
+		namefield.clear();
+		valuefield.clear();
+
 	}
 
 	/**
